@@ -1,6 +1,7 @@
 package com.example.internship_enrollment_app.Fragments;
 
 import android.Manifest;
+import android.app.TabActivity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -20,11 +21,13 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.bumptech.glide.Glide;
 import com.example.internship_enrollment_app.MainActivity;
 import com.example.internship_enrollment_app.R;
 import com.example.internship_enrollment_app.User;
 import com.example.internship_enrollment_app.UserViewModel;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textview.MaterialTextView;
 
@@ -89,10 +92,32 @@ public class EnrollFragment extends Fragment {
         home_town = homeTown.getText().toString();
         phone_number = phoneNumber.getText().toString();
 
+        if ( contentUri == null || first_name.matches("") || last_name.matches("") ||
+                d_o_b.matches("") || Gender.matches("") || Country.matches("") ||
+                State.matches("") || home_town.matches("") || phone_number.matches("")){
+
+            Toast.makeText(getContext(), "Please Fill All Fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
 
         User user = new User(contentUri.toString(), first_name, last_name, d_o_b, Gender, Country, State, home_town, phone_number);
         userViewModel.insert(user);
         Toast.makeText(getContext(), "User Enrolled", Toast.LENGTH_SHORT).show();
+
+        TabLayout tabhost = (TabLayout) getActivity().findViewById(R.id.tabs);
+        tabhost.getTabAt(0).select();
+        firstName.setText("");
+        lastName.setText("");
+        dob.setText("");
+        gender.setText("");
+        country.setText("");
+        state.setText("");
+        homeTown.setText("");
+        phoneNumber.setText("");
+        Glide.with(getContext()).load(R.drawable.select_image)
+                .into(userImage);
+        contentUri = null;
     }
 
     @Override

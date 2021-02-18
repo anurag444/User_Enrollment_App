@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +19,8 @@ import com.example.internship_enrollment_app.User;
 import com.example.internship_enrollment_app.UserViewModel;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class UserFragment extends Fragment {
@@ -40,8 +43,19 @@ public class UserFragment extends Fragment {
         usersRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         usersRecyclerView.setAdapter(userAdapter);
 
-        viewModel.getAllNotes().observe(getActivity(), usersList -> userAdapter.setData(usersList));
-        
+        viewModel.getAllNotes().observe(getActivity(), new Observer<List<User>>() {
+            @Override
+            public void onChanged(List<User> usersList) {
+                Collections.sort(usersList, new Comparator<User>() {
+                    public int compare(User obj1, User obj2) {
+                        // Descending order
+                        return Integer.valueOf(obj2.getId()).compareTo(obj1.getId()); // To compare integer values
+                    }
+                });
+                userAdapter.setData(usersList);
+            }
+        });
+
         return view;
     }
 }
