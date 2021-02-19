@@ -1,10 +1,12 @@
-package com.example.internship_enrollment_app;
+package com.example.internship_enrollment_app.RoomDatabase;
 
 import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+
+import com.example.internship_enrollment_app.Model.User;
 
 import java.util.List;
 

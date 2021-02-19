@@ -1,13 +1,17 @@
-package com.example.internship_enrollment_app;
+package com.example.internship_enrollment_app.Model;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+
+import com.google.firebase.database.annotations.NotNull;
 
 @Entity(tableName = "user_table")
 public class User {
 
-    @PrimaryKey(autoGenerate = true)
-    private int id;
+    @PrimaryKey
+    @NonNull
+    private String id;
     private String image;
     private String firstName;
     private String lastName;
@@ -32,11 +36,11 @@ public class User {
         this.phone = phone;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "919138120270",
+    "project_id": "internship-enrollment-app",
+    "storage_bucket": "internship-enrollment-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:919138120270:android:e13068a58aad0df2d1091f",
+        "android_client_info": {
+          "package_name": "com.example.internship_enrollment_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "919138120270-0f3901q4juej1n7pg0s9nqm84tku4l46.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBt9Rc7VB0qipmeFUAJD2sNE_-JsSgwi0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "919138120270-0f3901q4juej1n7pg0s9nqm84tku4l46.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

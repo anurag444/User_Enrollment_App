@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.internship_enrollment_app.Adapter.ViewPagerAdapter;
+import com.example.internship_enrollment_app.Fragments.EnrollFragment;
+import com.example.internship_enrollment_app.Fragments.UserFragment;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -42,4 +44,5 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
 }

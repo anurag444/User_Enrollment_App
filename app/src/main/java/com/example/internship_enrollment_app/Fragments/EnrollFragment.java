@@ -1,8 +1,6 @@
 package com.example.internship_enrollment_app.Fragments;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.TabActivity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -20,25 +18,23 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import com.bumptech.glide.Glide;
-import com.example.internship_enrollment_app.MainActivity;
 import com.example.internship_enrollment_app.R;
-import com.example.internship_enrollment_app.User;
-import com.example.internship_enrollment_app.UserViewModel;
+import com.example.internship_enrollment_app.Model.User;
+import com.example.internship_enrollment_app.RoomDatabase.UserViewModel;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.MaterialDatePicker;
-import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textview.MaterialTextView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Objects;
-import java.util.zip.Inflater;
 
 public class EnrollFragment extends Fragment {
 
@@ -50,7 +46,7 @@ public class EnrollFragment extends Fragment {
     private TextInputEditText firstName, lastName, dob, gender, country, state, homeTown, phoneNumber;
     private MaterialButton addUser;
     private UserViewModel userViewModel;
-    private int year;
+    private DatabaseReference reference;
 
     @Nullable
     @Override
@@ -70,47 +66,27 @@ public class EnrollFragment extends Fragment {
         phoneNumber = view.findViewById(R.id.phone_number);
         addUser = view.findViewById(R.id.add_user);
         userViewModel = new ViewModelProvider(getActivity()).get(UserViewModel.class);
+        reference = FirebaseDatabase.getInstance().getReference().child("users");
 
 
         selectImage.setOnClickListener(view1 -> askGalleryPermission());
-
 
         //Pick up date
         MaterialDatePicker.Builder materialDateBuilder = MaterialDatePicker.Builder.datePicker();
         materialDateBuilder.setTitleText("SELECT A DATE");
         final MaterialDatePicker materialDatePicker = materialDateBuilder.build();
 
-        dob.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                materialDatePicker.show(getActivity().getSupportFragmentManager(), "MATERIAL_DATE_PICKER");
-
-            }
-        });
-
-
+        dob.setOnClickListener(view13 -> materialDatePicker.show(getActivity().getSupportFragmentManager(), "MATERIAL_DATE_PICKER"));
 
         materialDatePicker.addOnPositiveButtonClickListener(
-                new MaterialPickerOnPositiveButtonClickListener() {
-                    @SuppressLint("SetTextI18n")
-                    @Override
-                    public void onPositiveButtonClick(Object selection) {
+                selection -> dob.setText(materialDatePicker.getHeaderText()));
 
-                        dob.setText(materialDatePicker.getHeaderText());
-
-                    }
-                });
-
-        addUser.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addNewUser();
-            }
-        });
+        addUser.setOnClickListener(view12 -> addNewUser());
 
 
-        return  view;
+        return view;
     }
+
 
     private void addNewUser() {
         String first_name, last_name, d_o_b, Gender, Country, State, home_town, phone_number;
@@ -123,19 +99,71 @@ public class EnrollFragment extends Fragment {
         home_town = homeTown.getText().toString();
         phone_number = phoneNumber.getText().toString();
 
-        if ( contentUri == null || first_name.matches("") || last_name.matches("") ||
+        if (contentUri == null) {
+            Toast.makeText(getContext(), "Please Select an Image", Toast.LENGTH_SHORT).show();
+        }
+
+        if (first_name.matches("") || last_name.matches("") ||
                 d_o_b.matches("") || Gender.matches("") || Country.matches("") ||
-                State.matches("") || home_town.matches("") || phone_number.matches("")){
+                State.matches("") || home_town.matches("") || phone_number.matches("")) {
 
             Toast.makeText(getContext(), "Please Fill All Fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        if (phone_number.length() != 10) {
+            Toast.makeText(getContext(), "Phone Number Not Valid", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        User user = new User(contentUri.toString(), first_name, last_name, d_o_b, Gender, Country, State, home_town, phone_number);
-        userViewModel.insert(user);
-        Toast.makeText(getContext(), "User Enrolled", Toast.LENGTH_SHORT).show();
 
+        User new_user = new User(contentUri.toString(), first_name, last_name, d_o_b, Gender, Country, State, home_town, phone_number);
+
+
+
+        //Adding Data to Firebase and checking for existing phone number
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean isExist = false;
+                if (snapshot.exists()) {
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        User user = dataSnapshot.getValue(User.class);
+                        if (user.getPhone().equals(phone_number)) {
+                            Toast.makeText(getContext(), "This phone number exists", Toast.LENGTH_SHORT).show();
+                            isExist = true;
+                            break;
+                        }
+                    }
+                    if (!isExist) {
+                        String id = reference.push().getKey();
+                        new_user.setId(id);
+                        //userViewModel.insert(new_user);
+                        reference.push().setValue(new_user);
+                        Toast.makeText(getContext(), "User Enrolled", Toast.LENGTH_SHORT).show();
+                        clearFields();
+                    }
+                } else {
+                    String id = reference.push().getKey();
+                    new_user.setId(id);
+                    reference.push().setValue(new_user);
+                    Toast.makeText(getContext(), "User Enrolled", Toast.LENGTH_SHORT).show();
+                    clearFields();
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+    private void clearFields() {
+        //Clear all fields
         TabLayout tabhost = (TabLayout) getActivity().findViewById(R.id.tabs);
         tabhost.getTabAt(0).select();
         firstName.setText("");
@@ -151,6 +179,7 @@ public class EnrollFragment extends Fragment {
         contentUri = null;
     }
 
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -160,6 +189,7 @@ public class EnrollFragment extends Fragment {
             userImage.setImageURI(contentUri);
         }
     }
+
     private void askGalleryPermission() {
         if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getContext()), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(Objects.requireNonNull(getActivity()), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
@@ -168,4 +198,5 @@ public class EnrollFragment extends Fragment {
             startActivityForResult(gallery, PICK_IMAGE);
         }
     }
+
 }
