@@ -1,6 +1,7 @@
 package com.example.internship_enrollment_app.Fragments;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.TabActivity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -27,11 +28,14 @@ import com.example.internship_enrollment_app.R;
 import com.example.internship_enrollment_app.User;
 import com.example.internship_enrollment_app.UserViewModel;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textview.MaterialTextView;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 import java.util.zip.Inflater;
@@ -46,6 +50,7 @@ public class EnrollFragment extends Fragment {
     private TextInputEditText firstName, lastName, dob, gender, country, state, homeTown, phoneNumber;
     private MaterialButton addUser;
     private UserViewModel userViewModel;
+    private int year;
 
     @Nullable
     @Override
@@ -69,6 +74,32 @@ public class EnrollFragment extends Fragment {
 
         selectImage.setOnClickListener(view1 -> askGalleryPermission());
 
+
+        //Pick up date
+        MaterialDatePicker.Builder materialDateBuilder = MaterialDatePicker.Builder.datePicker();
+        materialDateBuilder.setTitleText("SELECT A DATE");
+        final MaterialDatePicker materialDatePicker = materialDateBuilder.build();
+
+        dob.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                materialDatePicker.show(getActivity().getSupportFragmentManager(), "MATERIAL_DATE_PICKER");
+
+            }
+        });
+
+
+
+        materialDatePicker.addOnPositiveButtonClickListener(
+                new MaterialPickerOnPositiveButtonClickListener() {
+                    @SuppressLint("SetTextI18n")
+                    @Override
+                    public void onPositiveButtonClick(Object selection) {
+
+                        dob.setText(materialDatePicker.getHeaderText());
+
+                    }
+                });
 
         addUser.setOnClickListener(new View.OnClickListener() {
             @Override

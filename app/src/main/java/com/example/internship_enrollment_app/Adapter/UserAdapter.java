@@ -20,6 +20,7 @@ import com.example.internship_enrollment_app.User;
 import com.example.internship_enrollment_app.UserViewModel;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
@@ -55,7 +56,16 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
         holder.userName.setText(user.getFirstName() + " " + user.getLastName());
 
-        holder.userDetails.setText(user.getGender() + " | " + user.getCountry());
+
+
+        int year = Calendar.getInstance().get(Calendar.YEAR);
+        String date = user.getDob();
+        date = date.substring(date.length()-4);
+        int dob_year = Integer.parseInt(date);
+        year = year - dob_year;
+
+        holder.userDetails.setText(user.getGender() + " | " + year  + " | " + user.getCountry());
+
 
         Glide.with(context).load(Uri.parse(user.getImage()))
                 .placeholder(R.drawable.ic_baseline_person_24)
